@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "120627576774",
+    "project_id": "api-project-120627576774"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:120627576774:android:4c174a2ebdc45eef",
+        "android_client_info": {
+          "package_name": "lipdroid.com.gobeta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "120627576774-5d00se8m1ahd8fob8nromnbv283e7deg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lipdroid.com.gobeta",
+            "certificate_hash": "9ea449c2f7b667aea6c6052f2fab0e116ac8092b"
+          }
+        },
+        {
+          "client_id": "120627576774-srfl49imf94978feio4escu3nfm4t7a5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpJpc9a5QW6RVgWgCeZfyy3DGk8IF8kYc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
