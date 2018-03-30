@@ -1,11 +1,19 @@
 package lipdroid.com.gobeta;
 
+import android.animation.IntEvaluator;
+import android.animation.ValueAnimator;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
@@ -18,19 +26,28 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import lipdroid.com.gobeta.customViews.MapOverlayLayout;
 import lipdroid.com.gobeta.services.MyLocationTrackerService;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -42,11 +59,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker player_marker = null;
     private double player_pre_lat = 0.0;
     private double player_pre_lng = 0.0;
+    private LinearLayout root_layout = null;
+    private MapOverlayLayout mapOverlayLayout = null;
+    Circle player_circle = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        root_layout = (LinearLayout) findViewById(R.id.root_layout);
+        mapOverlayLayout = (MapOverlayLayout) findViewById(R.id.mapOverlayLayout);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -65,6 +87,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        mapOverlayLayout.setupMap(googleMap);
         isMapReady = true;
         mMap = googleMap;
         mMap.getUiSettings().setCompassEnabled(false);
@@ -89,12 +112,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             double longitude = arg1.getDoubleExtra("longitude", 0);
             Log.e("current latitude: ", latitude + "");
             Log.e("Current longitude: ", longitude + "");
+
             if (isMapReady) {
                 if (player_marker != null) {
+
                     animateMarker(90, new LatLng(player_pre_lat, player_pre_lng), new LatLng(latitude, longitude), false, player_marker);
                 } else {
                     addPlayerMarkerFirstTime(latitude, longitude);
                 }
+
+
             }
 
             player_pre_lat = latitude;
@@ -107,7 +134,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         player_marker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))
                 .title("User")
                 .anchor(0.5f, 0.5f)
-                .rotation(0f));
+                .rotation(0f).icon(BitmapDescriptorFactory.fromResource(R.drawable.user_icon)));
+        final Circle circle = mMap.addCircle(new CircleOptions().center(new LatLng(latitude,longitude))
+                .fillColor(0x33FF0000)
+                .strokeColor(0x33FF0000).radius(0));
+
+        ValueAnimator vAnimator = new ValueAnimator();
+        vAnimator.setRepeatCount(3);
+        vAnimator.setRepeatMode(ValueAnimator.RESTART);  /* PULSE */
+        vAnimator.setIntValues(0, 100);
+        vAnimator.setDuration(1000);
+        vAnimator.setEvaluator(new IntEvaluator());
+        vAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        vAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                float animatedFraction = valueAnimator.getAnimatedFraction();
+                // Log.e("", "" + animatedFraction);
+                circle.setRadius(animatedFraction * 100);
+            }
+        });
+        vAnimator.start();
+
+
         //Build camera position
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude))
@@ -117,6 +166,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
+
 
     @Override
     protected void onStop() {

@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -32,6 +33,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context="lipdroid.com.gobeta.MapsActivity"/>
+
+        <lipdroid.com.gobeta.customViews.MapOverlayLayout
+            android:id="@+id/mapOverlayLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </lipdroid.com.gobeta.customViews.MapOverlayLayout>
 
         <View
             android:layout_width="match_parent"
